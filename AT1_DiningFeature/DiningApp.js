@@ -19,12 +19,12 @@ async function main() {
             console.log("       DWU DINING MEAL BOOKING");
             console.log("========================================");
 
-            const studentID = await rl.question("Student ID: ");
-            const studentName = await rl.question("Student Name: ");
-            const mealDate = await rl.question("Meal Date (YYYY-MM-DD): ");
-            const mealType = await rl.question("Meal Type (Breakfast/Lunch/Dinner): ");
+            const studentID = (await rl.question("Student ID: ")).trim();
+            const studentName = (await rl.question("Student Name: ")).trim();
+            const mealDate = (await rl.question("Meal Date (YYYY-MM-DD): ")).trim();
+            const mealType = (await rl.question("Meal Type (Breakfast/Lunch/Dinner): ")).trim();
             const quantity = parseInt(await rl.question("Quantity: "));
-            const dietaryNote = await rl.question("Dietary Note: ");
+            const dietaryNote = (await rl.question("Dietary Note: ")).trim();
 
             const booking = new MealBooking(
                 studentID,
