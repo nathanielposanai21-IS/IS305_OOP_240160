@@ -1,8 +1,10 @@
 class MealBooking {
-    
+
 // Constructor initializes a new MealBooking object
 // with the student's booking details and default status.
     constructor(studentID, studentName, mealDate, mealType, quantity, dietaryNote) {
+
+// Store the booking information entered by the user.
         this.studentID = studentID;
         this.studentName = studentName;
         this.mealDate = mealDate;
