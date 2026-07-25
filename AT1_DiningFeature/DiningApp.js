@@ -23,7 +23,7 @@ async function main() {
             const studentName = (await rl.question("Student Name: ")).trim();
             const mealDate = (await rl.question("Meal Date (YYYY-MM-DD): ")).trim();
             const mealType = (await rl.question("Meal Type (Breakfast/Lunch/Dinner): ")).trim();
-            const quantity = parseInt(await rl.question("Quantity: "));
+            const quantity = Number(await rl.question("Quantity: "));
             const dietaryNote = (await rl.question("Dietary Note: ")).trim();
 
             const booking = new MealBooking(
