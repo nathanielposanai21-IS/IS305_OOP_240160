@@ -3,7 +3,7 @@ class MealBooking {
         this.studentID = studentID;
         this.studentName = studentName;
         this.mealDate = mealDate;
-        this.mealType = mealType;
+        this.mealType = mealType.charAt(0).toUpperCase() + mealType.slice(1).toLowerCase(); // Capitalize first letter
         this.quantity = Number(quantity);
         this.dietaryNote = dietaryNote;
         this.bookingStatus = "Pending";
