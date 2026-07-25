@@ -44,7 +44,7 @@ async function main() {
             );
 
             if (duplicate) {
-                throw new Error("Duplicate booking detected.");
+                throw new Error("Duplicate booking already exists.");
             }
 
             bookings.push(booking);
