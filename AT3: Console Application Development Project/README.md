@@ -188,7 +188,7 @@ StudentClubsEventsSystem/
 ## Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Student-Clubs-and-Events-System.git
+git clone https://github.com/nathanielposanai21-IS/IS305_OOP_240160.git
 ```
 
 ## Navigate to the project
