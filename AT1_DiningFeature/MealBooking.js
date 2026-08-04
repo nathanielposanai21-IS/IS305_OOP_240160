@@ -1,3 +1,12 @@
+/*
+  Program: Dining Meal Booking Feature
+  Student Name: Nathaniel Posanai
+  Student ID: 240160
+  Date: 17 July 2026
+  Description: A JavaScript program demonstrating classes,
+  objects, constructors, private fields and methods.
+*/
+
 class MealBooking {
 
 // Constructor initializes a new MealBooking object
