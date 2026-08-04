@@ -45,17 +45,7 @@ The application demonstrates:
 
 # Selected Subsystem
 
-Example:
-
-**Dining Services System**
-
-or
-
-**Library Services System**
-
-or
-
-**Student Attendance System**
+**Student Clubs and Events System**
 
 ---
 
