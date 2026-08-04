@@ -125,7 +125,7 @@ ProjectFolder/
 Clone the repository
 
 ```bash
-git clone https://github.com/nathanielposanai21-IS/IS305_OOP_240160
+git clone https://github.com/nathanielposanai21-IS/IS305_OOP_240160.git
 ```
 
 Navigate into the project
@@ -264,7 +264,7 @@ ConsoleOutput.png
 GitHub Repository
 
 ```
-https://github.com/nathanielposanai21-IS/IS305_OOP_240160
+https://github.com/nathanielposanai21-IS/IS305_OOP_240160.git
 ```
 
 ---
