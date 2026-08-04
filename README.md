@@ -45,8 +45,6 @@ The application demonstrates:
 
 # Selected Subsystem
 
-> **Replace this with your allocated subsystem**
-
 Example:
 
 **Dining Services System**
@@ -127,7 +125,7 @@ ProjectFolder/
 Clone the repository
 
 ```bash
-git clone https://github.com/USERNAME/REPOSITORY.git
+git clone https://github.com/nathanielposanai21-IS/IS305_OOP_240160
 ```
 
 Navigate into the project
@@ -261,27 +259,12 @@ MongoDB.png
 ConsoleOutput.png
 ```
 
----
-
-# Team Members
-
-| Name | Student ID | Role |
-|------|------------|------|
-| Student 1 | xxxxxx | Team Leader |
-| Student 2 | xxxxxx | Developer |
-| Student 3 | xxxxxx | Database |
-| Student 4 | xxxxxx | Documentation |
-| Student 5 | xxxxxx | Testing |
-| Student 6 | xxxxxx | Presentation |
-
----
-
 # Repository
 
 GitHub Repository
 
 ```
-https://github.com/yourusername/yourrepository
+https://github.com/nathanielposanai21-IS/IS305_OOP_240160
 ```
 
 ---
