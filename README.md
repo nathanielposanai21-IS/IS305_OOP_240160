@@ -66,8 +66,8 @@ This unit focuses on developing skills in:
 
 ## 👤 Student Information
 
-**Student:** *Your Name*
-**Student ID:** *240XXX*
+**Student:** *Nathaniel P. POSANAI*
+**Student ID:** *240160*
 
 ---
 
