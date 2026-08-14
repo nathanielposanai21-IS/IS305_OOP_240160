@@ -12,6 +12,7 @@ const readline = require("readline/promises");
 const { stdin: input, stdout: output } = require("process");
 
 const MealBooking = require("./MealBooking");
+const Student = require("./Student");
 
 const rl = readline.createInterface({ input, output });
 
@@ -31,6 +32,18 @@ async function main() {
             console.log("\n========================================");
             console.log("       DWU DINING MEAL BOOKING");
             console.log("========================================");
+            
+            // Ask for student information
+            const studentId = await rl.question("Enter Student ID: ");
+            const firstName = await rl.question("Enter First Name: ");
+            const lastName = await rl.question("Enter Last Name: ");
+
+            // Create Student Object
+            const student = new Student(studentId, firstName, lastName);
+
+            // Display student information
+            console.log();
+            student.displayInfo();
 
             // Get booking details from user
             const studentID = (await rl.question("Student ID: ")).trim();
