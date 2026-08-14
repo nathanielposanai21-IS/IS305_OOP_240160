@@ -8,7 +8,7 @@ Student ID: 240160
 
 ## GitHub Repository
 
-https://github.com/nathanielposanai21-IS/IS305-240160
+https://github.com/nathanielposanai21-IS/IS305_OOP_240160.git
 
 ## Description
 
