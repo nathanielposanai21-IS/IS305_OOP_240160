@@ -58,23 +58,10 @@ async function main() {
 
             // Ask only for meal booking details.
             // Student information comes from the Student object.
-            const mealDate = (
-                await rl.question("Meal Date (YYYY-MM-DD): ")
-            ).trim();
-
-            const mealType = (
-                await rl.question(
-                    "Meal Type (Breakfast/Lunch/Dinner): "
-                )
-            ).trim();
-
-            const quantity = Number(
-                await rl.question("Quantity: ")
-            );
-
-            const dietaryNote = (
-                await rl.question("Dietary Note: ")
-            ).trim();
+            const mealDate = (await rl.question("Meal Date (YYYY-MM-DD): ")).trim();
+            const mealType = (await rl.question("Meal Type (Breakfast/Lunch/Dinner): ")).trim();
+            const quantity = Number(await rl.question("Quantity: "));
+            const dietaryNote = (await rl.question("Dietary Note: ")).trim();
 
             // Create a new MealBooking using the Student object
             const booking = new MealBooking(
