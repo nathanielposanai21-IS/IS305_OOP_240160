@@ -21,42 +21,65 @@ const bookings = [];
 async function main() {
 
     let another = "Y";
-    
+
     // Loop to allow multiple bookings
     while (another.toUpperCase() === "Y") {
-        
-        // Prompt user for booking details
+
         try {
-            
+
             // Display header
             console.log("\n========================================");
             console.log("       DWU DINING MEAL BOOKING");
             console.log("========================================");
-            
-            // Ask for student information
+
+            // ========================================
+            // STUDENT INFORMATION
+            // ========================================
+
+            // Ask user for student information
             const studentId = await rl.question("Enter Student ID: ");
             const firstName = await rl.question("Enter First Name: ");
             const lastName = await rl.question("Enter Last Name: ");
 
-            // Create Student Object
-            const student = new Student(studentId, firstName, lastName);
+            // Create Student object
+            const student = new Student(
+                studentId,
+                firstName,
+                lastName
+            );
 
-            // Display student information
+            // Display Student information
             console.log();
             student.displayInfo();
 
-            // Get booking details from user
-            const studentID = (await rl.question("Student ID: ")).trim();
-            const studentName = (await rl.question("Student Name: ")).trim();
-            const mealDate = (await rl.question("Meal Date (YYYY-MM-DD): ")).trim();
-            const mealType = (await rl.question("Meal Type (Breakfast/Lunch/Dinner): ")).trim();
-            const quantity = Number(await rl.question("Quantity: "));
-            const dietaryNote = (await rl.question("Dietary Note: ")).trim();
+            // ========================================
+            // MEAL BOOKING INFORMATION
+            // ========================================
 
-            // Create a new MealBooking instance
+            // Ask only for meal booking details.
+            // Student information comes from the Student object.
+            const mealDate = (
+                await rl.question("Meal Date (YYYY-MM-DD): ")
+            ).trim();
+
+            const mealType = (
+                await rl.question(
+                    "Meal Type (Breakfast/Lunch/Dinner): "
+                )
+            ).trim();
+
+            const quantity = Number(
+                await rl.question("Quantity: ")
+            );
+
+            const dietaryNote = (
+                await rl.question("Dietary Note: ")
+            ).trim();
+
+            // Create a new MealBooking using the Student object
             const booking = new MealBooking(
-                studentID,
-                studentName,
+                student.studentId,
+                student.getFullName(),
                 mealDate,
                 mealType,
                 quantity,
@@ -73,18 +96,19 @@ async function main() {
                 b.getMealType() === booking.getMealType()
             );
 
-            // If a duplicate booking is found, throw an error
+            // If duplicate booking is found, throw an error
             if (duplicate) {
                 throw new Error("Duplicate booking already exists.");
             }
 
+            // Store booking in the array
             bookings.push(booking);
 
+            // Display booking summary
             console.log(booking.getSummary());
 
         }
 
-        // Catch and display any errors that occur during booking
         catch (error) {
 
             console.log("\n========================================");
@@ -94,13 +118,13 @@ async function main() {
 
         }
 
-        // Ask the user if they want to make another booking
-        another = await rl.question("\nEnter another booking? (Y/N): ");
-
+        // Ask whether another booking should be created
+        another = await rl.question(
+            "\nEnter another booking? (Y/N): "
+        );
     }
 
     rl.close();
-
 }
 
 main();
