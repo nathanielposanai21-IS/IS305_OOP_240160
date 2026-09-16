@@ -1,23 +1,26 @@
-class DiningAccount{
+class DiningAccount {
     #accountNumber;
     #balance;
     #transactions;
 
-    constructor(accountNumber, openingBalance = 0){
-        if (accountNumber || accountNumber.trim() == ""){
+    constructor(accountNumber, openingBalance = 0) {
+
+        // Validate account number
+        if (!accountNumber || accountNumber.trim() === "") {
             throw new Error("Account number cannot be empty");
         }
 
-        if (openingBalance < 0){
+        // Validate opening balance
+        if (openingBalance < 0) {
             throw new Error("Opening balance cannot be negative");
         }
 
-        this.#accountNumber = accountNumber;
+        this.#accountNumber = accountNumber.trim();
         this.#balance = openingBalance;
         this.#transactions = [];
 
         // Record the opening balance as a transaction
-        if (openingBalance > 0){
+        if (openingBalance > 0) {
             this.#transactions.push({
                 type: "Opening Balance",
                 amount: openingBalance,
@@ -27,9 +30,12 @@ class DiningAccount{
         }
     }
 
-    deposit(amount, description = "Deposit"){
-        if (amount <= 0){
-            throw new Error("Deposit amount must be positive or greater than zero");
+    deposit(amount, description = "Deposit") {
+
+        if (amount <= 0) {
+            throw new Error(
+                "Deposit amount must be positive or greater than zero"
+            );
         }
 
         this.#balance += amount;
@@ -44,13 +50,16 @@ class DiningAccount{
         return this.#balance;
     }
 
-    payForMeal(amount, description = "Meal Payment"){
-        if (amount <= 0){
-            throw new Error("Payment amount must be positive or greater than zero");
+    payForMeal(amount, description = "Meal Payment") {
+
+        if (amount <= 0) {
+            throw new Error(
+                "Payment amount must be positive or greater than zero"
+            );
         }
 
-        if (amount > this.#balance){
-            return false; // Insufficient funds
+        if (amount > this.#balance) {
+            return false;
         }
 
         this.#balance -= amount;
@@ -62,25 +71,25 @@ class DiningAccount{
             balance: this.#balance
         });
 
-        return true; // Payment successful
+        return true;
     }
 
-    getBalance(){
+    getBalance() {
         return this.#balance;
     }
 
-    getAccountNumber(){
+    getAccountNumber() {
         return this.#accountNumber;
     }
 
-    getTransactions(){
-        return [...this.#transactions]; // Return a copy of the transactions array
+    getTransactions() {
+        return [...this.#transactions];
     }
 
-    displayAccountSummary(){
+    displayAccountSummary() {
         console.log(`Account Number: ${this.#accountNumber}`);
-        console.log('Account Type: Standard Dining Account');
-        console.log(`Current Balance: $${this.#balance.toFixed(2)}`);
+        console.log("Account Type: Standard Dining Account");
+        console.log(`Current Balance: K${this.#balance.toFixed(2)}`);
     }
 }
 
