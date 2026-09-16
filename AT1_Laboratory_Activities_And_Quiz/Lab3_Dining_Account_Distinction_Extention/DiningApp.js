@@ -1,219 +1,577 @@
-/* Program: Dining Meal Booking Feature
+/*
+  Program: DWU Dining Meal Booking
   Student Name: Nathaniel Posanai
   Student ID: 240160
   Date: 17 July 2026
-  Description: A JavaScript program demonstrating classes,
-  objects, constructors, private fields, inheritance,
-  constructor chaining and dining accounts.
+  Description:
+  Lab 3 Part 2 demonstrating inheritance, polymorphism,
+  credit accounts, student account assignment, meal booking
+  payment, transaction history and simulated overloading.
 */
 
-// DiningApp.js
 const readline = require("readline/promises");
 const { stdin: input, stdout: output } = require("process");
 
-const MealBooking = require("./MealBooking");
 const Student = require("./Student");
+const MealBooking = require("./MealBooking");
 const DiningAccount = require("./DiningAccount");
 const RewardsDiningAccount = require("./RewardsDiningAccount");
+const CreditDiningAccount = require("./CreditDiningAccount");
 
-const rl = readline.createInterface({ input, output });
-
-const bookings = [];
+const rl = readline.createInterface({
+    input,
+    output
+});
 
 async function main() {
-
-    // =========================================================
-    // PART 1 - STANDARD DINING ACCOUNT
-    // =========================================================
-
-    console.log("\n========================================");
-    console.log("       STANDARD DINING ACCOUNT");
     console.log("========================================");
-
-    try {
-        // Create a DiningAccount with K1,000 opening balance
-        const account = new DiningAccount("DA001", 1000);
-
-        console.log(`Account Number: ${account.getAccountNumber()}`);
-        console.log(`Opening Balance: K${account.getBalance().toFixed(2)}`);
-
-        // Deposit K500
-        account.deposit(500);
-        console.log("Deposit: K500.00");
-
-        // Attempt to pay K200 for a meal
-        const paymentSuccessful = account.payForMeal(
-            200,
-            "Meal Payment"
-        );
-
-        console.log(
-            paymentSuccessful
-                ? `Payment successful. Balance: K${account.getBalance().toFixed(2)}`
-                : "Payment failed."
-        );
-
-    } catch (error) {
-        console.log("\nERROR");
-        console.log(error.message);
-    }
-
-
-    // =========================================================
-    // PART 1 - REWARDS DINING ACCOUNT
-    // =========================================================
-
-    console.log("\n========================================");
-    console.log("        REWARDS DINING ACCOUNT");
+    console.log("       DWU DINING MEAL BOOKING");
+    console.log("             LAB 3 PART 2");
     console.log("========================================");
+    console.log();
 
-    try {
-        // Create RewardsDiningAccount with K1,500 opening balance
-        // and a reward rate of 2.5%
-        const rewardsAccount = new RewardsDiningAccount(
-            "RA001",
-            1500,
-            2.5
-        );
-
-        // Deposit K500
-        rewardsAccount.deposit(500);
-
-        console.log(
-            `Account Number: ${rewardsAccount.getAccountNumber()}`
-        );
-
-        console.log(
-            `Balance Before Reward: K${rewardsAccount.getBalance().toFixed(2)}`
-        );
-
-        console.log(
-            `Reward Rate: ${rewardsAccount.getRewardRate()}%`
-        );
-
-        // Calculate reward
-        const reward = rewardsAccount.calculateReward();
-
-        console.log(
-            `Reward Earned: K${reward.toFixed(2)}`
-        );
-
-        // Apply reward
-        rewardsAccount.applyReward();
-
-        // Display final balance
-        console.log(
-            `Final Balance: K${rewardsAccount.getBalance().toFixed(2)}`
-        );
-
-    } catch (error) {
-        console.log("\nERROR");
-        console.log(error.message);
-    }
+    // ==================================================
+    // TASK 1 & TASK 6
+    // Constructor and method variations
+    // ==================================================
 
     console.log("========================================");
+    console.log("      CONSTRUCTOR/METHOD VARIATIONS");
+    console.log("========================================");
 
+    const variationAccount1 = new DiningAccount("DA001");
 
-    // =========================================================
-    // EXISTING LAB 2 - DINING MEAL BOOKING
-    // =========================================================
+    const variationAccount2 = new DiningAccount(
+        "DA002",
+        500
+    );
 
-    let another = "Y";
+    console.log(
+        `DA001 balance: K${variationAccount1.getBalance().toFixed(2)}`
+    );
 
-    // Loop to allow multiple bookings
-    while (another.toUpperCase() === "Y") {
+    console.log(
+        `DA002 balance: K${variationAccount2.getBalance().toFixed(2)}`
+    );
 
-        try {
+    variationAccount1.deposit(100);
 
-            // Display header
-            console.log("\n========================================");
-            console.log("       DWU DINING MEAL BOOKING");
-            console.log("========================================");
+    variationAccount2.deposit(
+        100,
+        "Additional meal funds"
+    );
 
-            // Ask for student information
-            const studentId = await rl.question("Enter Student ID: ");
-            const firstName = await rl.question("Enter First Name: ");
-            const lastName = await rl.question("Enter Last Name: ");
+    console.log(
+        `DA001 balance after deposit: K${variationAccount1.getBalance().toFixed(2)}`
+    );
 
-            // Create Student Object
-            const student = new Student(
-                studentId,
-                firstName,
-                lastName
-            );
+    console.log(
+        `DA002 balance after deposit: K${variationAccount2.getBalance().toFixed(2)}`
+    );
 
-            // Display student information
-            console.log();
-            student.displayInfo();
+    console.log();
 
-            // Get booking details from user
-            const mealDate = (
-                await rl.question("Meal Date (YYYY-MM-DD): ")
-            ).trim();
+    // ==================================================
+    // TASK 1
+    // Credit Dining Account Demonstration
+    // ==================================================
 
-            const mealType = (
-                await rl.question(
-                    "Meal Type (Breakfast/Lunch/Dinner): "
-                )
-            ).trim();
+    console.log("========================================");
+    console.log("      CREDIT ACCOUNT DEMONSTRATION");
+    console.log("========================================");
 
-            const quantity = Number(
-                await rl.question("Quantity: ")
-            );
+    const creditAccount = new CreditDiningAccount(
+        "CA001",
+        1000,
+        500
+    );
 
-            const dietaryNote = (
-                await rl.question("Dietary Note: ")
-            ).trim();
+    creditAccount.displayAccountSummary();
 
-            // Create a new MealBooking instance
-            const booking = new MealBooking(
-                student.studentID,
-                student.getFullName(),
-                mealDate,
-                mealType,
-                quantity,
-                dietaryNote
-            );
+    console.log("Attempting K1,500.00 payment...");
 
-            // Validate the booking
-            booking.validate();
+    creditAccount.payForMeal(
+        1500,
+        "Catering payment"
+    );
 
-            // Check for duplicate booking
-            const duplicate = bookings.find(b =>
-                b.getStudentID() === booking.getStudentID() &&
-                b.getMealDate() === booking.getMealDate() &&
-                b.getMealType() === booking.getMealType()
-            );
+    console.log(
+        `Resulting Balance: K${creditAccount.getBalance().toFixed(2)}`
+    );
 
-            // If a duplicate booking is found, throw an error
-            if (duplicate) {
-                throw new Error(
-                    "Duplicate booking already exists."
-                );
-            }
+    console.log();
 
-            // Add booking to the bookings array
-            bookings.push(booking);
+    console.log("Attempting another K1.00 payment...");
 
-            // Display booking summary
-            console.log(booking.getSummary());
+    creditAccount.payForMeal(
+        1,
+        "Additional catering payment"
+    );
 
-        } catch (error) {
+    console.log(
+        `Balance After Rejected Payment: K${creditAccount.getBalance().toFixed(2)}`
+    );
 
-            console.log("\n========================================");
-            console.log("ERROR");
-            console.log("========================================");
-            console.log(error.message);
-        }
+    console.log();
 
-        // Ask the user if they want to make another booking
-        another = await rl.question(
-            "\nEnter another booking? (Y/N): "
+    // ==================================================
+    // TASK 2
+    // POLYMORPHISM
+    // ==================================================
+
+    console.log("========================================");
+    console.log("       POLYMORPHIC ACCOUNT PROCESSING");
+    console.log("========================================");
+
+    const standardAccount = new DiningAccount(
+        "DA003",
+        100
+    );
+
+    const rewardsAccount = new RewardsDiningAccount(
+        "RA001",
+        100,
+        0.025
+    );
+
+    const polymorphicCreditAccount = new CreditDiningAccount(
+        "CA002",
+        100,
+        500
+    );
+
+    const diningAccounts = [
+        standardAccount,
+        rewardsAccount,
+        polymorphicCreditAccount
+    ];
+
+    for (const account of diningAccounts) {
+        account.displayAccountSummary();
+        console.log();
+    }
+
+    // Same method call, different specialised behaviour.
+    console.log("Calling payForMeal() polymorphically:");
+
+    for (const account of diningAccounts) {
+        console.log();
+        console.log(
+            `Processing K40.00 payment for ${account.getAccountNumber()}`
+        );
+
+        account.payForMeal(
+            40,
+            "Polymorphic meal payment"
         );
     }
+
+    console.log();
+
+    // ==================================================
+    // TASK 3
+    // CONNECT ACCOUNT TO STUDENT
+    // ==================================================
+
+    console.log("========================================");
+    console.log("        STUDENT ACCOUNT ASSIGNMENT");
+    console.log("========================================");
+
+    const student = new Student(
+        "DWU2026001",
+        "Maria",
+        "Kila"
+    );
+
+    const studentDiningAccount = new RewardsDiningAccount(
+        "RA002",
+        100,
+        0.025
+    );
+
+    student.assignDiningAccount(
+        studentDiningAccount
+    );
+
+    student.displayStudentDetails();
+
+    console.log();
+
+    // ==================================================
+    // TASK 4
+    // MEAL BOOKING PAYMENT
+    // ==================================================
+
+    console.log("========================================");
+    console.log("        MEAL BOOKING PAYMENT");
+    console.log("========================================");
+
+    const booking = new MealBooking(
+        student.getStudentID(),
+        student.getFullName(),
+        "2026-09-16",
+        "Dinner",
+        2,
+        "No special requirements"
+    );
+
+    booking.displayBooking();
+
+    console.log();
+    console.log("Processing booking payment...");
+
+    booking.processPayment(
+        student.getDiningAccount()
+    );
+
+    console.log();
+
+    booking.displayBooking();
+
+    console.log();
+
+    // ==================================================
+    // TASK 5
+    // TRANSACTION HISTORY
+    // ==================================================
+
+    console.log("========================================");
+    console.log("        ACCOUNT TRANSACTION HISTORY");
+    console.log("========================================");
+
+    student.getDiningAccount().displayTransactionHistory();
+
+    // ==================================================
+    // TASK 4
+    // DUPLICATE PAYMENT TEST
+    // ==================================================
+
+    console.log("========================================");
+    console.log("        DUPLICATE PAYMENT TEST");
+    console.log("========================================");
+
+    console.log(
+        "Attempting to process the same booking again..."
+    );
+
+    booking.processPayment(
+        student.getDiningAccount()
+    );
+
+    console.log();
+
+    // ==================================================
+    // REQUIRED TESTS
+    // ==================================================
+
+    console.log("========================================");
+    console.log("             REQUIRED TESTS");
+    console.log("========================================");
+
+    // ------------------------------------------
+    // Test 1: Standard account payment
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 1: Standard account payment");
+
+    const testStandard = new DiningAccount(
+        "TEST-DA01",
+        100
+    );
+
+    const standardResult = testStandard.payForMeal(
+        50,
+        "Standard test payment"
+    );
+
+    console.log(
+        `Expected: Payment succeeds`
+    );
+
+    console.log(
+        `Actual: ${standardResult ? "Payment succeeded" : "Payment rejected"}`
+    );
+
+    // ------------------------------------------
+    // Test 2: Insufficient standard balance
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 2: Insufficient standard balance");
+
+    const insufficientAccount = new DiningAccount(
+        "TEST-DA02",
+        50
+    );
+
+    const beforeBalance = insufficientAccount.getBalance();
+
+    const insufficientResult =
+        insufficientAccount.payForMeal(
+            100,
+            "Insufficient balance test"
+        );
+
+    const afterBalance = insufficientAccount.getBalance();
+
+    console.log(
+        `Expected: Payment rejected and balance unchanged`
+    );
+
+    console.log(
+        `Actual: ${
+            !insufficientResult && beforeBalance === afterBalance
+                ? "PASS"
+                : "FAIL"
+        }`
+    );
+
+    // ------------------------------------------
+    // Test 3: Rewards calculation
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 3: Rewards calculation");
+
+    const testRewards = new RewardsDiningAccount(
+        "TEST-RA01",
+        100,
+        0.025
+    );
+
+    testRewards.payForMeal(
+        40,
+        "Rewards test payment"
+    );
+
+    const expectedReward = 40 * 0.025;
+
+    console.log(
+        `Expected Reward: K${expectedReward.toFixed(2)}`
+    );
+
+    console.log(
+        `Actual Reward: K${testRewards.getRewardBalance().toFixed(2)}`
+    );
+
+    console.log(
+        testRewards.getRewardBalance() === expectedReward
+            ? "Result: PASS"
+            : "Result: FAIL"
+    );
+
+    // ------------------------------------------
+    // Test 4: Credit account within limit
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 4: Credit account within limit");
+
+    const testCredit = new CreditDiningAccount(
+        "TEST-CA01",
+        1000,
+        500
+    );
+
+    const creditResult = testCredit.payForMeal(
+        1500,
+        "Credit limit test"
+    );
+
+    console.log(
+        `Expected Balance: K-500.00`
+    );
+
+    console.log(
+        `Actual Balance: K${testCredit.getBalance().toFixed(2)}`
+    );
+
+    console.log(
+        creditResult && testCredit.getBalance() === -500
+            ? "Result: PASS"
+            : "Result: FAIL"
+    );
+
+    // ------------------------------------------
+    // Test 5: Credit limit exceeded
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 5: Credit limit exceeded");
+
+    const exceededCredit = new CreditDiningAccount(
+        "TEST-CA02",
+        1000,
+        500
+    );
+
+    const exceededResult =
+        exceededCredit.payForMeal(
+            1501,
+            "Credit exceeded test"
+        );
+
+    console.log(
+        `Expected: Payment rejected`
+    );
+
+    console.log(
+        `Actual: ${
+            !exceededResult
+                ? "Payment rejected"
+                : "Payment succeeded"
+        }`
+    );
+
+    console.log(
+        !exceededResult &&
+        exceededCredit.getBalance() === 1000
+            ? "Result: PASS"
+            : "Result: FAIL"
+    );
+
+    // ------------------------------------------
+    // Test 6: Polymorphic account processing
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 6: Polymorphic account processing");
+
+    const polymorphicTestAccounts = [
+        new DiningAccount("POLY-DA", 100),
+        new RewardsDiningAccount("POLY-RA", 100, 0.025),
+        new CreditDiningAccount("POLY-CA", 100, 500)
+    ];
+
+    for (const account of polymorphicTestAccounts) {
+        account.payForMeal(
+            20,
+            "Polymorphism test"
+        );
+    }
+
+    console.log(
+        "Result: PASS - same payForMeal() method was called on all account types."
+    );
+
+    // ------------------------------------------
+    // Test 7: Booking payment
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 7: Booking payment");
+
+    const bookingAccount = new DiningAccount(
+        "BOOK-DA",
+        100
+    );
+
+    const paymentBooking = new MealBooking(
+        "DWU2026002",
+        "John Peter",
+        "2026-09-17",
+        "Lunch",
+        2,
+        ""
+    );
+
+    const bookingPaymentResult =
+        paymentBooking.processPayment(
+            bookingAccount
+        );
+
+    console.log(
+        `Expected: Booking confirmed`
+    );
+
+    console.log(
+        `Actual: ${paymentBooking.getStatus()}`
+    );
+
+    console.log(
+        bookingPaymentResult &&
+        paymentBooking.getStatus() === "Confirmed"
+            ? "Result: PASS"
+            : "Result: FAIL"
+    );
+
+    // ------------------------------------------
+    // Test 8: Duplicate payment
+    // ------------------------------------------
+
+    console.log();
+    console.log("Test 8: Duplicate payment");
+
+    const balanceBeforeDuplicate =
+        bookingAccount.getBalance();
+
+    const duplicateResult =
+        paymentBooking.processPayment(
+            bookingAccount
+        );
+
+    const balanceAfterDuplicate =
+        bookingAccount.getBalance();
+
+    console.log(
+        `Expected: Duplicate payment rejected`
+    );
+
+    console.log(
+        `Actual: ${
+            !duplicateResult
+                ? "Duplicate rejected"
+                : "Duplicate accepted"
+        }`
+    );
+
+    console.log(
+        !duplicateResult &&
+        balanceBeforeDuplicate === balanceAfterDuplicate
+            ? "Result: PASS"
+            : "Result: FAIL"
+    );
+
+    // ==================================================
+    // FINAL ACCOUNT SUMMARY
+    // ==================================================
+
+    console.log();
+    console.log("========================================");
+    console.log("          FINAL STUDENT ACCOUNT");
+    console.log("========================================");
+
+    console.log(`Student: ${student.getFullName()}`);
+    console.log(`Student ID: ${student.getStudentID()}`);
+    console.log(
+        `Account Type: ${student.getDiningAccount().constructor.name}`
+    );
+    console.log(
+        `Account Number: ${student.getDiningAccount().getAccountNumber()}`
+    );
+    console.log(
+        `Balance: K${student.getDiningAccount().getBalance().toFixed(2)}`
+    );
+
+    if (
+        student.getDiningAccount() instanceof RewardsDiningAccount
+    ) {
+        console.log(
+            `Rewards Earned: K${student.getDiningAccount().getRewardBalance().toFixed(2)}`
+        );
+    }
+
+    console.log("========================================");
+
+    console.log();
+    console.log("Program completed successfully.");
 
     rl.close();
 }
 
-// Run the application
-main();
+main().catch((error) => {
+    console.error();
+    console.error("Program Error:", error.message);
+    rl.close();
+});

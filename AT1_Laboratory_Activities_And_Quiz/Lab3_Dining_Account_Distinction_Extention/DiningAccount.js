@@ -1,95 +1,168 @@
+/*
+  Program: DWU Dining Meal Booking
+  File: DiningAccount.js
+  Student Name: Nathaniel Posanai
+  Student ID: 240160
+  Description:
+  Base dining account class demonstrating private fields,
+  constructors, methods, validation and transaction history.
+*/
+
 class DiningAccount {
     #accountNumber;
     #balance;
     #transactions;
 
     constructor(accountNumber, openingBalance = 0) {
-
-        // Validate account number
-        if (!accountNumber || accountNumber.trim() === "") {
-            throw new Error("Account number cannot be empty");
+        if (!accountNumber || typeof accountNumber !== "string") {
+            throw new Error("Account number must be a valid string.");
         }
 
-        // Validate opening balance
-        if (openingBalance < 0) {
-            throw new Error("Opening balance cannot be negative");
+        if (typeof openingBalance !== "number" || openingBalance < 0) {
+            throw new Error("Opening balance must be a non-negative number.");
         }
 
-        this.#accountNumber = accountNumber.trim();
+        this.#accountNumber = accountNumber;
         this.#balance = openingBalance;
         this.#transactions = [];
 
-        // Record the opening balance as a transaction
-        if (openingBalance > 0) {
-            this.#transactions.push({
-                type: "Opening Balance",
-                amount: openingBalance,
-                description: "Opening account balance",
-                balance: this.#balance
-            });
-        }
-    }
-
-    deposit(amount, description = "Deposit") {
-
-        if (amount <= 0) {
-            throw new Error(
-                "Deposit amount must be positive or greater than zero"
-            );
-        }
-
-        this.#balance += amount;
-
+        // Record opening balance as the first transaction.
         this.#transactions.push({
             type: "Deposit",
-            amount: amount,
-            description: description,
-            balance: this.#balance
+            amount: openingBalance,
+            description: "Opening balance",
+            dateTime: new Date(),
+            balanceAfter: this.#balance
         });
-
-        return this.#balance;
-    }
-
-    payForMeal(amount, description = "Meal Payment") {
-
-        if (amount <= 0) {
-            throw new Error(
-                "Payment amount must be positive or greater than zero"
-            );
-        }
-
-        if (amount > this.#balance) {
-            return false;
-        }
-
-        this.#balance -= amount;
-
-        this.#transactions.push({
-            type: "Meal Payment",
-            amount: amount,
-            description: description,
-            balance: this.#balance
-        });
-
-        return true;
-    }
-
-    getBalance() {
-        return this.#balance;
     }
 
     getAccountNumber() {
         return this.#accountNumber;
     }
 
+    getBalance() {
+        return this.#balance;
+    }
+
     getTransactions() {
         return [...this.#transactions];
     }
 
+    deposit(amount, description = "Additional meal funds") {
+        if (typeof amount !== "number" || amount <= 0) {
+            console.log("Deposit rejected: amount must be greater than K0.00.");
+            return false;
+        }
+
+        this.#balance += amount;
+
+        this.#recordTransaction(
+            "Deposit",
+            amount,
+            description
+        );
+
+        console.log(
+            `Deposit successful: K${amount.toFixed(2)} added to ${this.#accountNumber}.`
+        );
+
+        return true;
+    }
+
+    payForMeal(amount, description = "Meal booking") {
+        if (typeof amount !== "number" || amount <= 0) {
+            console.log("Payment rejected: payment amount must be greater than K0.00.");
+            return false;
+        }
+
+        if (amount > this.#balance) {
+            console.log(
+                `Payment rejected: insufficient funds. ` +
+                `Available balance is K${this.#balance.toFixed(2)}.`
+            );
+            return false;
+        }
+
+        this.#balance -= amount;
+
+        this.#recordTransaction(
+            "Meal Payment",
+            amount,
+            description
+        );
+
+        console.log(
+            `Payment successful: K${amount.toFixed(2)} paid from ${this.#accountNumber}.`
+        );
+
+        return true;
+    }
+
     displayAccountSummary() {
+        console.log("========================================");
+        console.log("          DINING ACCOUNT");
+        console.log("========================================");
+        console.log(`Account Type: ${this.constructor.name}`);
         console.log(`Account Number: ${this.#accountNumber}`);
-        console.log("Account Type: Standard Dining Account");
-        console.log(`Current Balance: K${this.#balance.toFixed(2)}`);
+        console.log(`Balance: K${this.#balance.toFixed(2)}`);
+        console.log("========================================");
+    }
+
+    displayTransactionHistory() {
+        console.log("========================================");
+        console.log("          TRANSACTION HISTORY");
+        console.log("========================================");
+
+        if (this.#transactions.length === 0) {
+            console.log("No transactions recorded.");
+            return;
+        }
+
+        this.#transactions.forEach((transaction, index) => {
+            console.log(
+                `${index + 1}. ${transaction.type} - K${transaction.amount.toFixed(2)}`
+            );
+
+            console.log(`   Description: ${transaction.description}`);
+            console.log(
+                `   Date and Time: ${transaction.dateTime.toLocaleString()}`
+            );
+            console.log(
+                `   Balance: K${transaction.balanceAfter.toFixed(2)}`
+            );
+            console.log();
+        });
+
+        console.log(`Total Transactions: ${this.#transactions.length}`);
+        console.log("========================================");
+    }
+
+    // Internal method used by this class and subclasses.
+    #recordTransaction(type, amount, description) {
+        this.#transactions.push({
+            type: type,
+            amount: amount,
+            description: description,
+            dateTime: new Date(),
+            balanceAfter: this.#balance
+        });
+    }
+
+    // Allows subclasses to update the balance.
+    _setBalance(newBalance) {
+        this.#balance = newBalance;
+    }
+
+    // Allows subclasses to add transactions while keeping
+    // the actual transaction array private.
+    _recordTransaction(type, amount, description) {
+        this.#transactions.push({
+            type: type,
+            amount: amount,
+            description: description,
+            dateTime: new Date(),
+            balanceAfter: this.#balance
+        });
     }
 }
 

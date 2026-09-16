@@ -1,164 +1,200 @@
 /*
-  Program: Dining Meal Booking Feature
+  Program: DWU Dining Meal Booking
+  File: MealBooking.js
   Student Name: Nathaniel Posanai
   Student ID: 240160
-  Date: 17 July 2026
-  Description: A JavaScript program demonstrating classes,
-  objects, constructors, private fields and methods.
+  Description:
+  Meal booking class with payment processing using
+  polymorphism.
 */
 
 class MealBooking {
+    #studentID;
+    #studentName;
+    #mealDate;
+    #mealType;
+    #quantity;
+    #dietaryNote;
+    #status;
+    #paymentStatus;
+    #paymentProcessed;
 
-// Constructor initializes a new MealBooking object
-// with the student's booking details and default status.
-    constructor(studentID, studentName, mealDate, mealType, quantity, dietaryNote) {
+    constructor(
+        studentID,
+        studentName,
+        mealDate,
+        mealType,
+        quantity,
+        dietaryNote = ""
+    ) {
+        if (!studentID || typeof studentID !== "string") {
+            throw new Error("Student ID is required.");
+        }
 
-// Store the booking information entered by the user.
-        this.studentID = studentID;
-        this.studentName = studentName;
-        this.mealDate = mealDate;
-        this.mealType = mealType.charAt(0).toUpperCase() + mealType.slice(1).toLowerCase(); // Capitalize first letter
-        this.quantity = Number(quantity);
-        this.dietaryNote = dietaryNote;
+        if (!studentName || typeof studentName !== "string") {
+            throw new Error("Student name is required.");
+        }
 
-// Every new booking starts with a Pending status.
-        this.bookingStatus = "Pending";
+        if (!mealDate || typeof mealDate !== "string") {
+            throw new Error("Meal date is required.");
+        }
 
-// Store the meal prices for each meal type.
-        this.mealPrices = {
+        if (!mealType || typeof mealType !== "string") {
+            throw new Error("Meal type is required.");
+        }
+
+        if (!Number.isInteger(quantity) || quantity <= 0) {
+            throw new Error("Quantity must be a positive whole number.");
+        }
+
+        this.#studentID = studentID;
+        this.#studentName = studentName;
+        this.#mealDate = mealDate;
+        this.#mealType = mealType;
+        this.#quantity = quantity;
+        this.#dietaryNote = dietaryNote;
+
+        this.#status = "Pending";
+        this.#paymentStatus = "Pending";
+        this.#paymentProcessed = false;
+    }
+
+    getStudentID() {
+        return this.#studentID;
+    }
+
+    getStudentName() {
+        return this.#studentName;
+    }
+
+    getMealDate() {
+        return this.#mealDate;
+    }
+
+    getMealType() {
+        return this.#mealType;
+    }
+
+    getQuantity() {
+        return this.#quantity;
+    }
+
+    getDietaryNote() {
+        return this.#dietaryNote;
+    }
+
+    getStatus() {
+        return this.#status;
+    }
+
+    getPaymentStatus() {
+        return this.#paymentStatus;
+    }
+
+    getTotalCost() {
+        const prices = {
             Breakfast: 10,
             Lunch: 15,
             Dinner: 20
         };
-    }
 
-// Getter methods return the values of private booking properties.
-    // Returns the student's ID.
-    getStudentID() {
-        return this.studentID;
-    }
+        const price = prices[this.#mealType];
 
-    // Returns the student's name.
-    getStudentName() {
-        return this.studentName;
-    }
-
-    // Returns the meal date.
-    getMealDate() {
-        return this.mealDate;
-    }
-
-    // Returns the selected meal type.
-    getMealType() {
-        return this.mealType;
-    }
-
-    // Returns the booking quantity.
-    getQuantity() {
-        return this.quantity;
-    }
-
-    // Returns the dietary note.
-    getDietaryNote() {
-        return this.dietaryNote;
-    }
-
-    // Returns the current booking status.
-    getBookingStatus() {
-        return this.bookingStatus;
-    }
-
-// Setter methods update the booking information if required.
-    // Updates the student's ID.
-    setStudentID(studentID) {
-        this.studentID = studentID;
-    }
-
-    // Updates the student's name.
-    setStudentName(studentName) {
-        this.studentName = studentName;
-    }
-
-    // Updates the meal date.
-    setMealDate(mealDate) {
-        this.mealDate = mealDate;
-    }
-
-    // Updates the meal type.
-    setMealType(mealType) {
-        this.mealType = mealType;
-    }
-
-    // Updates the booking quantity.
-    setQuantity(quantity) {
-        this.quantity = Number(quantity);
-    }
-
-    // Updates the dietary note.
-    setDietaryNote(note) {
-        this.dietaryNote = note;
-    }
-
-    // Validates the booking information to ensure all required fields are filled correctly.
-    validate() {
-
-        // Check if the student ID, name, meal date, meal type, and quantity are valid.
-        if (!this.studentID.trim()) {
-            throw new Error("Student ID is required.");
+        if (!price) {
+            throw new Error(
+                `Invalid meal type: ${this.#mealType}. Use Breakfast, Lunch or Dinner.`
+            );
         }
 
-        if (!this.studentName.trim()) {
-            throw new Error("Student Name is required.");
-        }
-
-        if (!this.mealDate.trim()) {
-            throw new Error("Meal Date is required.");
-        }
-
-        const validMeals = ["Breakfast", "Lunch", "Dinner"];
-
-        if (!validMeals.includes(this.mealType)) {
-            throw new Error("Meal Type must be Breakfast, Lunch or Dinner.");
-        }
-
-        if (isNaN(this.quantity) || this.quantity < 1) {
-            throw new Error("Quantity must be at least 1.");
-        }
-
-        return true;
+        return price * this.#quantity;
     }
 
-    // Calculates the total cost of the booking based on meal type and quantity.
-    calculateTotal() {
-        return this.mealPrices[this.mealType] * this.quantity;
+    processPayment(diningAccount) {
+        if (!diningAccount || typeof diningAccount.payForMeal !== "function") {
+            console.log(
+                "Payment failed: a valid dining account is required."
+            );
+
+            this.#paymentStatus = "Failed";
+            this.#status = "Pending";
+
+            return false;
+        }
+
+        if (this.#paymentProcessed || this.#paymentStatus === "Successful") {
+            console.log("========================================");
+            console.log("          DUPLICATE PAYMENT");
+            console.log("========================================");
+            console.log(
+                "This booking has already been paid for."
+            );
+            console.log(
+                "The account will not be charged again."
+            );
+            console.log("========================================");
+
+            return false;
+        }
+
+        const totalCost = this.getTotalCost();
+
+        console.log("========================================");
+        console.log("          PROCESSING PAYMENT");
+        console.log("========================================");
+        console.log(`Meal: ${this.#mealType}`);
+        console.log(`Quantity: ${this.#quantity}`);
+        console.log(`Total Cost: K${totalCost.toFixed(2)}`);
+        console.log(`Account: ${diningAccount.getAccountNumber()}`);
+        console.log("========================================");
+
+        /*
+          Polymorphism:
+          The booking does not determine the account type.
+          It simply calls payForMeal().
+        */
+        const paymentSuccessful = diningAccount.payForMeal(
+            totalCost,
+            `${this.#mealType} booking`
+        );
+
+        if (paymentSuccessful) {
+            this.#paymentStatus = "Successful";
+            this.#status = "Confirmed";
+            this.#paymentProcessed = true;
+
+            console.log("Payment Status: Successful");
+            console.log("Booking Status: Confirmed");
+            console.log(
+                `Remaining Balance: K${diningAccount.getBalance().toFixed(2)}`
+            );
+
+            return true;
+        }
+
+        this.#paymentStatus = "Failed";
+        this.#status = "Pending";
+
+        console.log("Payment Status: Failed");
+        console.log("Booking Status: Pending");
+
+        return false;
     }
 
-    confirmBooking() {
-        this.bookingStatus = "Confirmed";
-    }
-
-    cancelBooking() {
-        this.bookingStatus = "Cancelled";
-    }
-
-    // Generates a summary of the booking details for display or confirmation.
-    getSummary() {
-
-        return `
-========================================
-          BOOKING CREATED
-========================================
-Student: ${this.studentName} (${this.studentID})
-Meal Date: ${this.mealDate}
-Meal Type: ${this.mealType}
-Quantity: ${this.quantity}
-Dietary Note: ${this.dietaryNote || "None"}
-Status: ${this.bookingStatus}
-Total Cost: K${this.calculateTotal().toFixed(2)}
-========================================
-`;
+    displayBooking() {
+        console.log("========================================");
+        console.log("             MEAL BOOKING");
+        console.log("========================================");
+        console.log(`Student: ${this.#studentName}`);
+        console.log(`Student ID: ${this.#studentID}`);
+        console.log(`Meal Date: ${this.#mealDate}`);
+        console.log(`Meal: ${this.#mealType}`);
+        console.log(`Quantity: ${this.#quantity}`);
+        console.log(`Total Cost: K${this.getTotalCost().toFixed(2)}`);
+        console.log(`Dietary Note: ${this.#dietaryNote || "None"}`);
+        console.log(`Payment Status: ${this.#paymentStatus}`);
+        console.log(`Booking Status: ${this.#status}`);
+        console.log("========================================");
     }
 }
 
-// Export the MealBooking class for use in other modules.
 module.exports = MealBooking;
