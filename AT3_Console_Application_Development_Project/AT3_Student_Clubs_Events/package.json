@@ -1,0 +1,19 @@
+{
+  "name": "at3-student-clubs-events",
+  "version": "1.0.0",
+  "description": "IS305 AT3 DWU Student Clubs and Events console application",
+  "main": "CampusServiceApp.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node CampusServiceApp.js",
+    "test": "jest --runInBand --coverage",
+    "test:watch": "jest --watch",
+    "lint": "node --check CampusServiceApp.js"
+  },
+  "dependencies": {
+    "mongoose": "^8.7.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

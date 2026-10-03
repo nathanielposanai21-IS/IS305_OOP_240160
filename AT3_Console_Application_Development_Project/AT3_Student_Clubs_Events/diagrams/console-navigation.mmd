@@ -1,0 +1,10 @@
+flowchart TD
+  Start([Start]) --> Menu[Display main menu]
+  Menu --> Choice{Choice}
+  Choice -->|1-14| Subsystem[Perform clubs/events operation]
+  Choice -->|15| Requests[Service request submenu]
+  Choice -->|16| Reports[Display reports]
+  Subsystem --> Menu
+  Requests --> Menu
+  Reports --> Menu
+  Choice -->|17| End([Exit])

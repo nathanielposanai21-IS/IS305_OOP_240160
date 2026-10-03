@@ -1,0 +1,13 @@
+classDiagram
+  class User { -userId; -firstName; -lastName; -email; -userType; +getFullName(); +validate() }
+  class ServiceRequest { -requestId; -requester; -title; -status; +updateDetails(); +cancelRequest(); +getRequestSummary() }
+  class ServiceRequestManager { +registerUser(); +submitRequest(); +updateRequest(); +cancelRequest(); +searchRequests() }
+  class Club { -clubId; -name; -category; -presidentId }
+  class Event { -eventId; -clubId; -capacity; -status; +cancel(); +complete() }
+  class ClubEventsManager { +registerClub(); +joinClub(); +createEvent(); +registerForEvent(); +recordAttendance() }
+  User "1" --> "many" ServiceRequest : requester
+  ServiceRequestManager --> User
+  ServiceRequestManager --> ServiceRequest
+  Club "1" --> "many" Event
+  ClubEventsManager --> Club
+  ClubEventsManager --> Event

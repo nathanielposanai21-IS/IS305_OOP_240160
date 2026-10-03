@@ -1,0 +1,16 @@
+sequenceDiagram
+  actor Student
+  participant App as CampusServiceApp
+  participant Manager as ClubEventsManager
+  participant Event
+  Student->>App: choose Register for Event
+  App->>Manager: registerForEvent(studentId, eventId)
+  Manager->>Manager: findEvent(eventId)
+  Manager->>Event: read status and capacity
+  alt scheduled and capacity available
+    Manager-->>App: registration record
+    App-->>Student: confirmation
+  else invalid, duplicate, or full
+    Manager-->>App: Error
+    App-->>Student: clear validation message
+  end

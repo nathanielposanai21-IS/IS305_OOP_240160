@@ -1,0 +1,107 @@
+const User = require("../User");
+const ServiceRequest = require("../ServiceRequest");
+const ServiceRequestManager = require("../ServiceRequestManager");
+
+describe("AT3 pass component", () => {
+  let manager;
+  let user;
+  let request;
+  beforeEach(() => {
+    manager = new ServiceRequestManager();
+    user = new User({
+      userId: "STU001",
+      firstName: "Ada",
+      lastName: "Lovelace",
+      email: "ada@example.com",
+    });
+    manager.registerUser(user);
+    request = new ServiceRequest({
+      requestId: "REQ001",
+      requester: user,
+      title: "Wi-Fi issue",
+      description: "Cannot connect to campus Wi-Fi",
+      campusLocation: "Library",
+      category: "ICT Support",
+      priority: "High",
+    });
+  });
+  test("registers a valid user and rejects duplicate ID", () => {
+    expect(manager.findUserById("STU001")).toBe(user);
+    expect(() => manager.registerUser(user)).toThrow("Duplicate user ID");
+  });
+  test("submits a valid request with Submitted status", () => {
+    manager.submitRequest(request);
+    expect(request.status).toBe("Submitted");
+    expect(manager.getAllRequests()).toHaveLength(1);
+  });
+  test("rejects invalid categories and priorities", () => {
+    expect(
+      () =>
+        new ServiceRequest({
+          requestId: "REQ002",
+          requester: user,
+          title: "x",
+          description: "y",
+          campusLocation: "z",
+          category: "Invalid",
+          priority: "High",
+        }),
+    ).toThrow("Unsupported category");
+    expect(
+      () =>
+        new ServiceRequest({
+          requestId: "REQ003",
+          requester: user,
+          title: "x",
+          description: "y",
+          campusLocation: "z",
+          category: "ICT Support",
+          priority: "Critical",
+        }),
+    ).toThrow("Unsupported priority");
+  });
+  test("returns only the selected user records", () => {
+    const other = new User({
+      userId: "STU002",
+      firstName: "Grace",
+      lastName: "Hopper",
+      email: "grace@example.com",
+    });
+    manager.registerUser(other);
+    manager.submitRequest(request);
+    const otherRequest = new ServiceRequest({
+      requestId: "REQ002",
+      requester: other,
+      title: "Light",
+      description: "Broken light",
+      campusLocation: "Hall",
+      category: "Facilities Maintenance",
+    });
+    manager.submitRequest(otherRequest);
+    expect(manager.getRequestsByUser("STU001")).toEqual([request]);
+  });
+  test("enforces ownership on update and cancellation", () => {
+    manager.submitRequest(request);
+    expect(() =>
+      manager.updateRequest("REQ001", "STU999", { title: "Changed" }),
+    ).toThrow("only modify your own");
+    expect(() => manager.cancelRequest("REQ001", "STU999")).toThrow(
+      "only modify your own",
+    );
+    manager.updateRequest("REQ001", "STU001", { title: "Updated title" });
+    expect(request.title).toBe("Updated title");
+    manager.cancelRequest("REQ001", "STU001");
+    expect(request.status).toBe("Cancelled");
+    expect(() => manager.cancelRequest("REQ001", "STU001")).toThrow(
+      "already Cancelled",
+    );
+  });
+  test("searches and summarises requests", () => {
+    manager.submitRequest(request);
+    expect(manager.searchRequests("library")).toHaveLength(1);
+    expect(manager.getRequestSummaryByStatus()).toEqual({
+      Submitted: 1,
+      Cancelled: 0,
+    });
+  });
+});

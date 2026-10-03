@@ -1,0 +1,13 @@
+flowchart LR
+  Student((Student))
+  Admin((Club Administrator))
+  A[Register student]
+  B[Join club]
+  C[Register for event]
+  D[View attendance]
+  E[Create/manage event]
+  F[Record attendance]
+  G[Publish announcement]
+  H[Submit and manage service request]
+  Student --> A & B & C & D & H
+  Admin --> E & F & G

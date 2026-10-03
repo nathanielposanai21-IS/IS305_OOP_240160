@@ -1,0 +1,15 @@
+erDiagram
+  USER ||--o{ SERVICE_REQUEST : submits
+  USER ||--o{ MEMBERSHIP : has
+  CLUB ||--o{ MEMBERSHIP : includes
+  CLUB ||--o{ EVENT : hosts
+  USER ||--o{ ATTENDANCE : receives
+  EVENT ||--o{ ATTENDANCE : records
+  CLUB ||--o{ ANNOUNCEMENT : publishes
+  USER { string userId PK string email }
+  CLUB { string clubId PK string presidentId }
+  EVENT { string eventId PK string clubId FK int capacity }
+  SERVICE_REQUEST { string requestId PK string requesterId FK string status }
+  MEMBERSHIP { string studentId FK string clubId FK }
+  ATTENDANCE { string studentId FK string eventId FK string status }
+  ANNOUNCEMENT { string announcementId PK string clubId FK }

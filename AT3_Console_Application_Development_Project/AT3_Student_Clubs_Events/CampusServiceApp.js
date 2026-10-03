@@ -1,0 +1,310 @@
+const readline = require("readline");
+const User = require("./User");
+const ServiceRequest = require("./ServiceRequest");
+const ServiceRequestManager = require("./ServiceRequestManager");
+const Club = require("./models/Club");
+const Event = require("./models/Event");
+const ClubEventsManager = require("./managers/ClubEventsManager");
+
+class CampusServiceApp {
+  constructor(input = process.stdin, output = process.stdout) {
+    this.users = new Map();
+    this.serviceRequests = new ServiceRequestManager();
+    this.activities = new ClubEventsManager();
+    this.input = input;
+    this.output = output;
+    this.rl = readline.createInterface({ input, output });
+  }
+  print(message = "") {
+    this.output.write(`${message}\n`);
+  }
+  async ask(question) {
+    return new Promise((resolve) =>
+      this.rl.question(question, (answer) => resolve(answer.trim())),
+    );
+  }
+  async run() {
+    this.print(
+      "\n==================================================\n       DWU STUDENT CLUBS & EVENTS SYSTEM\n==================================================",
+    );
+    let choice;
+    do {
+      this.print(
+        "\n1. Register Student  2. Register Club  3. View Clubs  4. Join Club\n5. View My Clubs  6. Create Event  7. View Events  8. Register for Event\n9. View My Events  10. Cancel Event Registration  11. Record Attendance\n12. View Attendance  13. Create Announcement  14. View Announcements\n15. Service Requests  16. Reports  17. Exit",
+      );
+      choice = await this.ask("Enter your choice: ");
+      try {
+        await this.handleChoice(choice);
+      } catch (error) {
+        this.print(`Error: ${error.message}`);
+      }
+    } while (choice !== "17");
+    this.rl.close();
+  }
+  async handleChoice(choice) {
+    switch (choice) {
+      case "1":
+        return this.registerStudent();
+      case "2":
+        return this.registerClub();
+      case "3":
+        return this.listClubs();
+      case "4":
+        return this.joinClub();
+      case "5":
+        return this.viewMyClubs();
+      case "6":
+        return this.createEvent();
+      case "7":
+        return this.listEvents();
+      case "8":
+        return this.registerEvent();
+      case "9":
+        return this.viewMyEvents();
+      case "10":
+        return this.cancelEventRegistration();
+      case "11":
+        return this.recordAttendance();
+      case "12":
+        return this.viewAttendance();
+      case "13":
+        return this.createAnnouncement();
+      case "14":
+        return this.listAnnouncements();
+      case "15":
+        return this.serviceRequestMenu();
+      case "16":
+        return this.reports();
+      case "17":
+        this.print("Goodbye.");
+        return;
+      default:
+        throw new Error("Please select a menu option from 1 to 17");
+    }
+  }
+  async registerStudent() {
+    const student = new User({
+      userId: await this.ask("Student ID: "),
+      firstName: await this.ask("First name: "),
+      lastName: await this.ask("Last name: "),
+      email: await this.ask("Email: "),
+      userType: "Student",
+    });
+    if (this.users.has(student.userId)) throw new Error("Duplicate user ID");
+    this.users.set(student.userId, student);
+    this.serviceRequests.registerUser(student);
+    this.print(`Registered: ${student.displayInfo()}`);
+  }
+  async registerClub() {
+    const club = new Club({
+      clubId: await this.ask("Club ID: "),
+      name: await this.ask("Club name: "),
+      description: await this.ask("Description: "),
+      category: await this.ask(
+        "Category (Academic/Sports/Culture/Technology/Religious/Social): ",
+      ),
+      presidentId: await this.ask("President student ID: "),
+    });
+    this.activities.registerClub(club);
+    this.print(`Club registered: ${club.name}`);
+  }
+  listClubs() {
+    const clubs = this.activities.getClubs();
+    this.print(
+      clubs.length
+        ? clubs
+            .map((c) => `${c.clubId} | ${c.name} | ${c.category} | ${c.status}`)
+            .join("\n")
+        : "No clubs registered.",
+    );
+  }
+  async joinClub() {
+    const membership = this.activities.joinClub(
+      await this.ask("Student ID: "),
+      await this.ask("Club ID: "),
+    );
+    this.print(`Membership created on ${membership.joinedAt.toISOString()}`);
+  }
+  async viewMyClubs() {
+    const memberships = this.activities.getMemberships(
+      await this.ask("Student ID: "),
+    );
+    this.print(
+      memberships.length
+        ? memberships
+            .map(
+              (m) => `${m.clubId} | joined ${m.joinedAt.toLocaleDateString()}`,
+            )
+            .join("\n")
+        : "No memberships found.",
+    );
+  }
+  async createEvent() {
+    const event = new Event({
+      eventId: await this.ask("Event ID: "),
+      clubId: await this.ask("Club ID: "),
+      name: await this.ask("Event name: "),
+      description: await this.ask("Description: "),
+      date: await this.ask("Date (DD/MM/YYYY): "),
+      time: await this.ask("Time: "),
+      location: await this.ask("Location: "),
+      capacity: await this.ask("Capacity: "),
+    });
+    this.activities.createEvent(event);
+    this.print(`Event created: ${event.name}`);
+  }
+  listEvents() {
+    const events = this.activities.getEvents();
+    this.print(
+      events.length
+        ? events
+            .map(
+              (e) =>
+                `${e.eventId} | ${e.name} | ${e.date} ${e.time} | ${e.location} | ${e.status}`,
+            )
+            .join("\n")
+        : "No events found.",
+    );
+  }
+  async registerEvent() {
+    const registration = this.activities.registerForEvent(
+      await this.ask("Student ID: "),
+      await this.ask("Event ID: "),
+    );
+    this.print(
+      `Registration confirmed on ${registration.registeredAt.toISOString()}`,
+    );
+  }
+  async viewMyEvents() {
+    const registrations = this.activities.getRegistrations(
+      await this.ask("Student ID: "),
+    );
+    this.print(
+      registrations.length
+        ? registrations
+            .map(
+              (r) =>
+                `${r.eventId} | registered ${r.registeredAt.toLocaleDateString()}`,
+            )
+            .join("\n")
+        : "No event registrations found.",
+    );
+  }
+  async cancelEventRegistration() {
+    this.activities.cancelRegistration(
+      await this.ask("Student ID: "),
+      await this.ask("Event ID: "),
+    );
+    this.print("Event registration cancelled.");
+  }
+  async recordAttendance() {
+    const record = this.activities.recordAttendance(
+      await this.ask("Student ID: "),
+      await this.ask("Event ID: "),
+      await this.ask("Status (Present/Absent): "),
+    );
+    this.print(`Attendance recorded: ${record.status}`);
+  }
+  async viewAttendance() {
+    const records = this.activities.getAttendance(
+      await this.ask("Student ID: "),
+    );
+    this.print(
+      records.length
+        ? records
+            .map(
+              (r) =>
+                `${r.eventId} | ${r.status} | ${r.recordedAt.toLocaleDateString()}`,
+            )
+            .join("\n")
+        : "No attendance records found.",
+    );
+  }
+  async createAnnouncement() {
+    const announcement = this.activities.publishAnnouncement({
+      announcementId: await this.ask("Announcement ID: "),
+      clubId: await this.ask("Club ID: "),
+      title: await this.ask("Title: "),
+      message: await this.ask("Message: "),
+      authorId: await this.ask("Author ID: "),
+    });
+    this.print(`Announcement published: ${announcement.title}`);
+  }
+  listAnnouncements() {
+    const announcements = this.activities.getAnnouncements();
+    this.print(
+      announcements.length
+        ? announcements
+            .map((a) => `${a.announcementId} | ${a.title} | ${a.message}`)
+            .join("\n")
+        : "No announcements found.",
+    );
+  }
+  async serviceRequestMenu() {
+    const sub = await this.ask(
+      "Service request: 1 Submit, 2 View own, 3 View all, 4 Update, 5 Cancel, 6 Search: ",
+    );
+    if (sub === "1") {
+      const requester = this.serviceRequests.findUserById(
+        await this.ask("Requester ID: "),
+      );
+      if (!requester) throw new Error("Register the student first");
+      const request = new ServiceRequest({
+        requestId: await this.ask("Request ID: "),
+        requester,
+        title: await this.ask("Title: "),
+        description: await this.ask("Description: "),
+        campusLocation: await this.ask("Campus location: "),
+        category: await this.ask("Category: "),
+        priority: await this.ask("Priority: "),
+      });
+      this.serviceRequests.submitRequest(request);
+      this.print("Service request submitted.");
+    } else if (sub === "2")
+      this.print(
+        this.serviceRequests
+          .getRequestsByUser(await this.ask("User ID: "))
+          .map((r) => r.getRequestSummary())
+          .join("\n") || "No requests found.",
+      );
+    else if (sub === "3")
+      this.print(
+        this.serviceRequests
+          .getAllRequests()
+          .map((r) => r.getRequestSummary())
+          .join("\n") || "No requests found.",
+      );
+    else if (sub === "4") {
+      const r = this.serviceRequests.updateRequest(
+        await this.ask("Request ID: "),
+        await this.ask("User ID: "),
+        {
+          title: await this.ask("New title: "),
+          description: await this.ask("New description: "),
+        },
+      );
+      this.print(`Updated: ${r.getRequestSummary()}`);
+    } else if (sub === "5") {
+      this.serviceRequests.cancelRequest(
+        await this.ask("Request ID: "),
+        await this.ask("User ID: "),
+      );
+      this.print("Request cancelled.");
+    } else if (sub === "6")
+      this.print(
+        this.serviceRequests
+          .searchRequests(await this.ask("Search text: "))
+          .map((r) => r.getRequestSummary())
+          .join("\n") || "No matches found.",
+      );
+    else throw new Error("Invalid service-request option");
+  }
+  reports() {
+    this.print(
+      `Service requests: ${JSON.stringify(this.serviceRequests.getRequestSummaryByStatus())}\nClubs: ${this.activities.getClubs().length}\nEvents: ${this.activities.getEvents().length}\nRegistrations: ${this.activities.getRegistrations().length}`,
+    );
+  }
+}
+
+if (require.main === module) new CampusServiceApp().run();
+module.exports = CampusServiceApp;
