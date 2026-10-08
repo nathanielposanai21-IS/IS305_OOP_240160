@@ -16,6 +16,20 @@ The project deliberately keeps the required pass files:
 
 The main subsystem uses array-backed domain managers for an easy demonstration, while `models/UserModel.js` and `models/DomainModels.js` provide Mongoose schemas for the MongoDB stage of the project.
 
+## Credit Extension
+
+The project also implements the specialised Credit Extension in `models/RequesterRoles.js` and `models/SpecializedRequests.js`:
+
+- Inherited roles: `StudentRequester`, `StaffRequester`, `ServiceOfficer`, and `Technician`.
+- Specialised requests: `ICTSupportRequest`, `MaintenanceRequest`, and `CleaningRequest`.
+- Controlled workflow: `Submitted → Reviewed → Assigned → In Progress → Resolved → Closed`.
+- Final cancellation state: `Cancelled`.
+- Role permissions for review, technician assignment, work progress, resolution, and closure.
+- Request history entries for status changes, priority assignment, comments, actors, and timestamps.
+- Search by ID/title, filtering by category/status/priority/technician, and sorting by submission date or priority.
+
+Menu option 17 opens a working Credit workflow entry for registering service roles and submitting specialised requests.
+
 ## Requirements
 
 - Node.js 18 or later
@@ -119,6 +133,8 @@ AT3_Student_Clubs_Events/
 ├── models/
 │   ├── Club.js
 │   ├── Event.js
+│   ├── RequesterRoles.js
+│   ├── SpecializedRequests.js
 │   ├── UserModel.js
 │   ├── DomainModels.js
 │   └── database.js

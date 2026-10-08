@@ -5,6 +5,12 @@ const ServiceRequestManager = require("./ServiceRequestManager");
 const Club = require("./models/Club");
 const Event = require("./models/Event");
 const ClubEventsManager = require("./managers/ClubEventsManager");
+const { ServiceOfficer, Technician } = require("./models/RequesterRoles");
+const {
+  ICTSupportRequest,
+  MaintenanceRequest,
+  CleaningRequest,
+} = require("./models/SpecializedRequests");
 
 class CampusServiceApp {
   constructor(input = process.stdin, output = process.stdout) {
@@ -30,7 +36,7 @@ class CampusServiceApp {
     let choice;
     do {
       this.print(
-        "\n1. Register Student  2. Register Club  3. View Clubs  4. Join Club\n5. View My Clubs  6. Create Event  7. View Events  8. Register for Event\n9. View My Events  10. Cancel Event Registration  11. Record Attendance\n12. View Attendance  13. Create Announcement  14. View Announcements\n15. Service Requests  16. Reports  17. Exit",
+        "\n1. Register Student  2. Register Club  3. View Clubs  4. Join Club\n5. View My Clubs  6. Create Event  7. View Events  8. Register for Event\n9. View My Events  10. Cancel Event Registration  11. Record Attendance\n12. View Attendance  13. Create Announcement  14. View Announcements\n15. Service Requests  16. Reports  17. Credit Workflow  18. Exit",
       );
       choice = await this.ask("Enter your choice: ");
       try {
@@ -38,7 +44,7 @@ class CampusServiceApp {
       } catch (error) {
         this.print(`Error: ${error.message}`);
       }
-    } while (choice !== "17");
+    } while (choice !== "18");
     this.rl.close();
   }
   async handleChoice(choice) {
@@ -76,11 +82,78 @@ class CampusServiceApp {
       case "16":
         return this.reports();
       case "17":
+        return this.creditWorkflow();
+      case "18":
         this.print("Goodbye.");
         return;
       default:
-        throw new Error("Please select a menu option from 1 to 17");
+        throw new Error("Please select a menu option from 1 to 18");
     }
+  }
+  async creditWorkflow() {
+    const action = await this.ask(
+      "Credit workflow: register-role or specialised-request: ",
+    );
+    if (action === "register-role") {
+      const role = await this.ask("Role (Service Officer/Technician): ");
+      const common = {
+        userId: await this.ask("User ID: "),
+        firstName: await this.ask("First name: "),
+        lastName: await this.ask("Last name: "),
+        email: await this.ask("Email: "),
+      };
+      const user =
+        role === "Service Officer"
+          ? new ServiceOfficer(common, {
+              serviceSection: await this.ask("Service section: "),
+            })
+          : new Technician(common, {
+              technicalSpeciality: await this.ask("Technical speciality: "),
+            });
+      this.users.set(user.userId, user);
+      this.serviceRequests.registerUser(user);
+      this.print(`Registered: ${user.displayInfo()}`);
+      return;
+    }
+    if (action !== "specialised-request")
+      throw new Error("Choose register-role or specialised-request");
+    const requester = this.serviceRequests.findUserById(
+      await this.ask("Requester ID: "),
+    );
+    const common = {
+      requestId: await this.ask("Request ID: "),
+      requester,
+      title: await this.ask("Title: "),
+      description: await this.ask("Description: "),
+      campusLocation: await this.ask("Campus location: "),
+      priority: await this.ask("Priority: "),
+    };
+    const kind = await this.ask("Type (ICT/Maintenance/Cleaning): ");
+    const request =
+      kind === "ICT"
+        ? new ICTSupportRequest(common, {
+            deviceType: await this.ask("Device type: "),
+            systemName: await this.ask("System name: "),
+            faultType: await this.ask("Fault type: "),
+            networkImpact: await this.ask(
+              "Network impact (None/Local/Campus-wide): ",
+            ),
+          })
+        : kind === "Maintenance"
+          ? new MaintenanceRequest(common, {
+              building: await this.ask("Building: "),
+              roomNumber: await this.ask("Room number: "),
+              hazardLevel: await this.ask("Hazard level (Low/Medium/High): "),
+              equipmentAffected: await this.ask("Equipment affected: "),
+            })
+          : new CleaningRequest(common, {
+              cleaningArea: await this.ask("Cleaning area: "),
+              hygieneRisk: await this.ask("Hygiene risk (Low/Medium/High): "),
+              serviceType: await this.ask("Service type: "),
+              preferredServiceTime: await this.ask("Preferred service time: "),
+            });
+    this.serviceRequests.submitRequest(request);
+    this.print(`Specialised request submitted: ${request.getRequestSummary()}`);
   }
   async registerStudent() {
     const student = new User({

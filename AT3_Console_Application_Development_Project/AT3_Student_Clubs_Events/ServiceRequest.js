@@ -9,6 +9,9 @@ class ServiceRequest {
   #status;
   #dateSubmitted;
   #dateUpdated;
+  #assignedTechnician;
+  #progressUpdates;
+  #history;
 
   static CATEGORIES = Object.freeze([
     "ICT Support",
@@ -17,7 +20,24 @@ class ServiceRequest {
     "General Campus Service",
   ]);
   static PRIORITIES = Object.freeze(["Low", "Normal", "High", "Urgent"]);
-  static STATUSES = Object.freeze(["Submitted", "Cancelled"]);
+  static STATUSES = Object.freeze([
+    "Submitted",
+    "Reviewed",
+    "Assigned",
+    "In Progress",
+    "Resolved",
+    "Closed",
+    "Cancelled",
+  ]);
+  static TRANSITIONS = Object.freeze({
+    Submitted: ["Reviewed", "Cancelled"],
+    Reviewed: ["Assigned", "Cancelled"],
+    Assigned: ["In Progress", "Cancelled"],
+    "In Progress": ["Resolved", "Cancelled"],
+    Resolved: ["Closed"],
+    Closed: [],
+    Cancelled: [],
+  });
 
   constructor({
     requestId,
@@ -55,6 +75,9 @@ class ServiceRequest {
     this.#status = "Submitted";
     this.#dateSubmitted = new Date(dateSubmitted);
     this.#dateUpdated = new Date(this.#dateSubmitted);
+    this.#assignedTechnician = null;
+    this.#progressUpdates = [];
+    this.#history = [];
     this.validate();
   }
 
@@ -88,6 +111,15 @@ class ServiceRequest {
   get dateUpdated() {
     return new Date(this.#dateUpdated);
   }
+  get assignedTechnician() {
+    return this.#assignedTechnician;
+  }
+  get progressUpdates() {
+    return this.#progressUpdates.map((update) => ({ ...update }));
+  }
+  get history() {
+    return this.#history.map((entry) => ({ ...entry }));
+  }
 
   validate() {
     if (!ServiceRequest.CATEGORIES.includes(this.#category))
@@ -102,8 +134,8 @@ class ServiceRequest {
   }
 
   updateDetails(changes = {}) {
-    if (this.#status === "Cancelled")
-      throw new Error("Cancelled requests cannot be updated");
+    if (this.#status !== "Submitted")
+      throw new Error("Only Submitted requests can be updated");
     if (changes.title !== undefined)
       this.#title = ServiceRequest.#required(changes.title, "Request title");
     if (changes.description !== undefined)
@@ -132,18 +164,88 @@ class ServiceRequest {
     return this;
   }
 
-  cancelRequest() {
+  cancelRequest(
+    actor = this.#requester,
+    comment = "Request cancelled by requester",
+  ) {
     if (this.#status === "Cancelled")
       throw new Error("Request is already Cancelled");
-    this.#status = "Cancelled";
-    this.#dateUpdated = new Date();
+    this.transitionTo("Cancelled", actor, comment);
     return this;
   }
 
-  getRequestSummary() {
-    return `${this.#requestId} | ${this.#title} | ${this.#category} | ${this.#priority} | ${this.#status} | ${this.#requester.getFullName()}`;
+  transitionTo(newStatus, actor, comment = "") {
+    if (!ServiceRequest.STATUSES.includes(newStatus))
+      throw new Error(`Unsupported status: ${newStatus}`);
+    if (!ServiceRequest.TRANSITIONS[this.#status].includes(newStatus))
+      throw new Error(
+        `Invalid status transition: ${this.#status} to ${newStatus}`,
+      );
+    const previousStatus = this.#status;
+    this.#status = newStatus;
+    this.#dateUpdated = new Date();
+    this.#history.push({
+      previousStatus,
+      newStatus,
+      action: `${newStatus} request`,
+      actorId: actor?.userId || actor?.role || "SYSTEM",
+      actorRole: actor?.userType || actor?.role || "Unknown",
+      comment,
+      date: new Date(this.#dateUpdated),
+    });
+    return this;
   }
 
+  assignTechnician(technician, comment = "Technician assigned") {
+    if (!technician || typeof technician.userId !== "string")
+      throw new Error("A valid technician is required");
+    this.#assignedTechnician = technician;
+    return this.transitionTo("Assigned", technician, comment);
+  }
+  setPriority(priority, actor, comment = "Priority assigned") {
+    this.#priority = ServiceRequest.#choice(
+      priority,
+      ServiceRequest.PRIORITIES,
+      "priority",
+    );
+    this.#dateUpdated = new Date();
+    this.#history.push({
+      previousStatus: this.#status,
+      newStatus: this.#status,
+      action: "Priority assigned",
+      actorId: actor?.userId || "SYSTEM",
+      actorRole: actor?.userType || "Unknown",
+      comment,
+      date: new Date(this.#dateUpdated),
+    });
+    return this;
+  }
+  addProgressUpdate(technician, comment) {
+    if (
+      !this.#assignedTechnician ||
+      technician.userId !== this.#assignedTechnician.userId
+    )
+      throw new Error("Only the assigned Technician may update work progress");
+    if (this.#status !== "In Progress")
+      throw new Error("Progress can only be recorded while In Progress");
+    const update = {
+      technicianId: technician.userId,
+      comment: ServiceRequest.#required(comment, "Progress comment"),
+      date: new Date(),
+    };
+    this.#progressUpdates.push(update);
+    this.#dateUpdated = new Date();
+    return update;
+  }
+  getRequestSummary() {
+    return `${this.#requestId} | ${this.#title} | ${this.#category} | ${this.#priority} | ${this.#status} | ${this.#requester.getFullName()}${this.#assignedTechnician ? ` | Technician: ${this.#assignedTechnician.getFullName()}` : ""}`;
+  }
+  calculatePriorityScore() {
+    return { Urgent: 40, High: 30, Normal: 15, Low: 5 }[this.#priority];
+  }
+  getTargetResolutionHours() {
+    return { Urgent: 8, High: 24, Normal: 72, Low: 120 }[this.#priority];
+  }
   toJSON() {
     return {
       requestId: this.#requestId,
@@ -154,8 +256,11 @@ class ServiceRequest {
       category: this.#category,
       priority: this.#priority,
       status: this.#status,
+      assignedTechnicianId: this.#assignedTechnician?.userId || null,
       dateSubmitted: this.dateSubmitted,
       dateUpdated: this.dateUpdated,
+      history: this.history,
+      progressUpdates: this.progressUpdates,
     };
   }
 
@@ -170,5 +275,4 @@ class ServiceRequest {
     return value;
   }
 }
-
 module.exports = ServiceRequest;

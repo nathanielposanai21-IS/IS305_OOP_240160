@@ -18,6 +18,14 @@ Run `npm install`, then `npm start`. The system displays the DWU Student Clubs &
 10. Search, update, and cancel the request.
 11. Select Reports to show system totals.
 
+## Demonstrating the Credit Extension
+
+1. Select menu option 17 and choose `register-role` to register a Service Officer and a Technician.
+2. Select menu option 17 again and choose `specialised-request`.
+3. Select ICT, Maintenance, or Cleaning and enter the specialised fields.
+4. Use the manager workflow methods from the application integration to review, assign, start, update, resolve, and close the request.
+5. Explain the request's status history during the viva.
+
 ## Supported values
 
 - Club categories: Academic, Sports, Culture, Technology, Religious, Social

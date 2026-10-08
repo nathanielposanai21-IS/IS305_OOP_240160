@@ -35,3 +35,11 @@ The MongoDB model uses string business identifiers (`userId`, `clubId`, `eventId
 4. Add integration tests against a test MongoDB instance.
 5. Add audit logs, pagination, richer reports, and input sanitisation.
 6. Add GitHub Actions to run tests on every push.
+
+## Credit Extension design
+
+`RequesterRoles.js` demonstrates inheritance and constructor chaining. Each role calls `super()` and validates its specialised field. `SpecializedRequests.js` applies the same pattern to ICT, maintenance, and cleaning requests. The specialised classes override `getRequestSummary()` and provide category-specific priority scoring and target resolution hours.
+
+`ServiceRequest` owns the permitted state-transition map. `ServiceRequestManager` is the authorization boundary: it checks officer and technician roles, confirms the assigned technician, and delegates valid transitions to the request. Every approved transition or priority assignment appends an audit record with previous status, new status, action, actor, comment, and timestamp.
+
+The Credit tests in `tests/credit-extension.test.js` verify constructor chaining, specialised validation, role permissions, invalid transitions, history, search, filters, and sorting.
