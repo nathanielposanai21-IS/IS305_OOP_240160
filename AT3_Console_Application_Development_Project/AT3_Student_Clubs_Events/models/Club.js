@@ -1,5 +1,3 @@
-// models/Club.js
-
 class Club {
   static CATEGORIES = Object.freeze([
     "Academic",
