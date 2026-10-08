@@ -43,3 +43,11 @@ The MongoDB model uses string business identifiers (`userId`, `clubId`, `eventId
 `ServiceRequest` owns the permitted state-transition map. `ServiceRequestManager` is the authorization boundary: it checks officer and technician roles, confirms the assigned technician, and delegates valid transitions to the request. Every approved transition or priority assignment appends an audit record with previous status, new status, action, actor, comment, and timestamp.
 
 The Credit tests in `tests/credit-extension.test.js` verify constructor chaining, specialised validation, role permissions, invalid transitions, history, search, filters, and sorting.
+
+## Distinction Extension design
+
+The specialised requests share one collection and are processed polymorphically through `getRequestSummary()`, `calculatePriorityScore()`, and `getTargetResolutionHours()`. `ServiceRequestFactory.createFromData()` uses the saved `requestType` to restore the appropriate active class instead of returning plain objects.
+
+JSON persistence is separated into `JsonFileRepository`, `UserFileRepository`, `ServiceRequestFileRepository`, and `AuditFileRepository`. Missing files are created as empty arrays, malformed files produce explicit errors, and all automated persistence tests use temporary directories. `ApplicationPersistence` coordinates repositories so `CampusServiceApp` does not directly read or write files.
+
+`AuditLogger` uses UUID audit IDs and ISO timestamps. `ReportService` uses `filter`, `map`-style grouping and `reduce` operations to generate management reports. The built-in Node test runner suite contains 13 tests covering construction, invalid values, duplicates, permissions, transitions, polymorphism, persistence, restoration, missing files, file errors, audit records, and reports.

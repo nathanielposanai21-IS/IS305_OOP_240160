@@ -30,6 +30,20 @@ The project also implements the specialised Credit Extension in `models/Requeste
 
 Menu option 17 opens a working Credit workflow entry for registering service roles and submitting specialised requests.
 
+## Distinction Extension: JSON persistence and reporting
+
+The project includes a database-free persistence stage using only `fs/promises`. The `data/` directory contains `users.json`, `serviceRequests.json`, `requestHistory.json`, and `auditLog.json`. Repository classes keep JSON file operations separate from domain objects and the console. `ServiceRequestFactory` restores the correct specialised request class when records are loaded.
+
+`AuditLogger` records registrations, creations, updates, priority changes, assignments, status changes, resolutions, closures, and cancellations. `ReportService` produces grouped status/category/priority reports, urgent and overdue lists, technician assignment and completion reports, average resolution time, and campus-location volume.
+
+Run the required built-in Node test runner with:
+
+```bash
+npm run test:node
+```
+
+The Node suite uses temporary directories and never overwrites the application's normal data files.
+
 ## Requirements
 
 - Node.js 18 or later
@@ -140,6 +154,16 @@ AT3_Student_Clubs_Events/
 │   └── database.js
 ├── managers/
 │   └── ClubEventsManager.js
+├── repositories/
+│   ├── JsonFileRepository.js
+│   ├── UserFileRepository.js
+│   ├── ServiceRequestFileRepository.js
+│   └── AuditFileRepository.js
+├── services/
+│   ├── ApplicationPersistence.js
+│   ├── AuditLogger.js
+│   ├── ReportService.js
+│   └── ServiceRequestFactory.js
 ├── tests/
 │   ├── pass-component.test.js
 │   ├── clubs-events.test.js

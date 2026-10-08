@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node CampusServiceApp.js",
     "test": "jest --runInBand --coverage",
+    "test:node": "node --test tests/distinction.test.js",
     "test:watch": "jest --watch",
     "lint": "node --check CampusServiceApp.js"
   },

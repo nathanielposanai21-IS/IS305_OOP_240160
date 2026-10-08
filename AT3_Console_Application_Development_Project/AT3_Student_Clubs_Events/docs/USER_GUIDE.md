@@ -26,6 +26,15 @@ Run `npm install`, then `npm start`. The system displays the DWU Student Clubs &
 4. Use the manager workflow methods from the application integration to review, assign, start, update, resolve, and close the request.
 5. Explain the request's status history during the viva.
 
+## Demonstrating JSON persistence and reporting
+
+1. Run the application once and register a user or submit a request.
+2. Exit and restart the application; existing records are loaded from `data/`.
+3. Show `users.json`, `serviceRequests.json`, `requestHistory.json`, and `auditLog.json` as simulated data files.
+4. Explain that repositories perform file operations and the factory restores specialised request objects.
+5. Use Reports and explain grouped status, category, priority, urgent, overdue, technician, resolution-time, and location reports.
+6. Run `npm run test:node` to demonstrate the isolated built-in Node test suite.
+
 ## Supported values
 
 - Club categories: Academic, Sports, Culture, Technology, Religious, Social
