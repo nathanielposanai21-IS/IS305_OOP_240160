@@ -1,5 +1,3 @@
-// Manager for handling club and event-related operations.
-
 class ClubEventsManager {
   #clubs = [];
   #events = [];
@@ -13,8 +11,6 @@ class ClubEventsManager {
     this.#clubs.push(club);
     return club;
   }
-
-  // Additional methods for managing clubs, events, memberships, registrations, attendance, and announcements can be added here.
   getClubs() {
     return [...this.#clubs];
   }
